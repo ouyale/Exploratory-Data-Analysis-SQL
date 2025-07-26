@@ -1,7 +1,6 @@
 # Introduction
 In this Capstone Project, I explore the landscape of high-paying jobs and the skills that tend to lead there. Using SQL and data analysis, I dig into job market trends to figure out which skills are in demand and how they connect to top roles. For me, this project isn’t just about identifying well-paying positions — it’s about understanding what drives value in today’s market and how I can grow in the right direction.
 
-    SQL queries? Check them out here: [project_sql folder](/Project_sql/)
 # 🌌 Background
 
 In this project, I take on the role of a job seeker navigating the constantly evolving data landscape. My goal is to identify the highest paying jobs and the key skills required to land them. By analyzing job market data using SQL, I aim to uncover actionable insights that can help guide my career decisions and highlight the skills that hold the most value in today’s job market.
