@@ -1,209 +1,215 @@
-# Introduction
-In this Capstone Project, I explore the landscape of high-paying jobs and the skills that tend to lead there. Using SQL and data analysis, I dig into job market trends to figure out which skills are in demand and how they connect to top roles. For me, this project isn’t just about identifying well-paying positions — it’s about understanding what drives value in today’s market and how I can grow in the right direction.
+# Data Analyst Job Market — SQL Exploration 💼 &nbsp; [![View Queries](https://img.shields.io/badge/SQL-View_Queries-orange?logo=postgresql)](Project_sql/)
 
-# 🌌 Background
+![SQL](https://img.shields.io/badge/SQL-Advanced-4479A1?logo=postgresql&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql&logoColor=white)
+![VS Code](https://img.shields.io/badge/VS_Code-Editor-007ACC?logo=visualstudiocode&logoColor=white)
+![Git](https://img.shields.io/badge/Git-Version_Control-F05032?logo=git&logoColor=white)
+![Status](https://img.shields.io/badge/Status-Complete-success)
 
-In this project, I take on the role of a job seeker navigating the constantly evolving data landscape. My goal is to identify the highest paying jobs and the key skills required to land them. By analyzing job market data using SQL, I aim to uncover actionable insights that can help guide my career decisions and highlight the skills that hold the most value in today’s job market.
+> **Exploring the data analyst job market with SQL — uncovering the highest-paying roles, most in-demand skills, and optimal skills for career advancement through 5 progressive analytical queries.**
 
-#### Deliverables:
+<br>
 
-- **`1_top_paying_jobs.sql`**: Reveals the roles with the highest salaries.
-- **`2_top_paying_job_skills.sql`**: Identifies the skills demanded by these lucrative positions.
-- **`3_top_demanded_skills.sql`**: Finds the skills most sought after in the job market.
-- **`4_average_salary_associated_with_skill.sql`**: Highlights the skills that lead to the highest pay.
-- **`5_optimal_skills.sql`**: Determines the best skills to learn for career advancement.
+<p align="center">
+  <img src="https://img.shields.io/badge/💰_Top_Salary-$115K-green?style=for-the-badge" alt="Top Salary"/>
+  &nbsp;&nbsp;
+  <img src="https://img.shields.io/badge/🔍_Queries-5_Analyses-blue?style=for-the-badge" alt="Queries"/>
+  &nbsp;&nbsp;
+  <img src="https://img.shields.io/badge/📊_Focus-Remote_Data_Analyst-orange?style=for-the-badge" alt="Focus"/>
+</p>
 
-Through this project, I’ve not only improved my SQL abilities but also gained a clearer understanding of how to strategically align my skill set with the roles that offer the highest value.🔍💡
-# 🛠️ Tools Used
+<br>
 
-- **SQL:** My primary tool for querying the dataset, enabling us to perform complex analyses and extract key insights about job roles and salaries with precision and efficiency.
-- **PostgreSQL:** Chosen for its advanced features and reliability, PostgreSQL served as our robust database platform, handling complex queries and large datasets with ease.
-- **Visual Studio Code (VS Code):** Our go-to code editor, selected for its user-friendly interface and extensive support for SQL and PostgreSQL, which boosted our coding productivity.
-- **Git & GitHub:** Utilized for version control and collaboration, Git allowed us to manage project changes effectively, while GitHub provided a platform to share our work and engage with the community.
+## Table of Contents
 
-# 📊 Analysis
-My analytical expedition is guided by five meticulously crafted SQL queries, each designed to shed light on different facets of the data analyst job market. Let's break down these steps:
+- [Problem Statement](#problem-statement)
+- [Dataset](#dataset)
+- [Analysis](#analysis)
+  - [1. Top Paying Jobs](#1-top-paying-data-analyst-jobs)
+  - [2. Skills for Top Jobs](#2-skills-required-for-top-paying-jobs)
+  - [3. Most In-Demand Skills](#3-most-in-demand-skills)
+  - [4. Salary by Skill](#4-average-salary-by-skill)
+  - [5. Optimal Skills](#5-optimal-skills)
+- [Key Findings](#key-findings)
+- [Technologies Used](#technologies-used)
+- [How to Run](#how-to-run)
+- [Author](#author)
+
+<br>
+
+## Problem Statement
+
+What skills should an aspiring data analyst focus on to maximize both employability and earning potential? This project explores real job market data using **SQL** to answer five progressive questions — from identifying the highest-paying remote roles to finding the optimal intersection of high demand and high salary skills.
+
+<br>
+
+## Dataset
+
+| Property | Detail |
+|----------|--------|
+| **Tables** | `job_postings_fact`, `company_dim`, `skills_job_dim`, `skills_dim` |
+| **Focus** | Data Analyst roles, remote ("Anywhere") positions |
+| **Setup** | Database creation and loading scripts in `sql_load/` |
+
+<br>
+
+## Analysis
 
 ### 1. Top Paying Data Analyst Jobs
-**Objective:** Identify the top 10 highest-paying Data Analyst roles available remotely, focusing on job postings with specified salaries.
 
-**Why:** This step aims to highlight the top-paying opportunities for Data Analysts, providing insights into lucrative career paths.
+Identified the **top 10 highest-paying remote** Data Analyst positions:
+
 ```sql
-SELECT
-    job_id,
-    job_title,
-    job_location,
-    job_schedule_type,
-    salary_year_avg,
-    job_posted_date,
-    name AS company_name
-FROM
-    job_postings_fact
+SELECT job_id, job_title, salary_year_avg, name AS company_name
+FROM job_postings_fact
 LEFT JOIN company_dim ON job_postings_fact.company_id = company_dim.company_id
-WHERE
-    job_title_short='Data Analyst' AND
-    job_location='Anywhere' AND
-    salary_year_avg IS NOT NULL
-ORDER BY 
-    salary_year_avg DESC
+WHERE job_title_short = 'Data Analyst'
+  AND job_location = 'Anywhere'
+  AND salary_year_avg IS NOT NULL
+ORDER BY salary_year_avg DESC
 LIMIT 10
 ```
-### 2. Top Paying Job Skills
-**Objective:** Determine the skills required for the top-paying Data Analyst jobs, using the top 10 roles identified in the first query.
 
-**Why:** This analysis gives a detailed look at the skills high-paying jobs demand, helping job seekers align their skill development with top salaries.
+### 2. Skills Required for Top-Paying Jobs
+
+Used a **CTE** to find which skills the highest-paying roles demand:
+
 ```sql
-WITH top_paying_jobs AS(
-    SELECT
-        job_id,
-        job_title,
-        salary_year_avg,
-        name AS company_name
-    FROM
-        job_postings_fact
+WITH top_paying_jobs AS (
+    SELECT job_id, job_title, salary_year_avg, name AS company_name
+    FROM job_postings_fact
     LEFT JOIN company_dim ON job_postings_fact.company_id = company_dim.company_id
-    WHERE
-        job_title_short='Data Analyst' AND
-        job_location='Anywhere' AND
-        salary_year_avg IS NOT NULL
-    ORDER BY 
-        salary_year_avg DESC
+    WHERE job_title_short = 'Data Analyst'
+      AND job_location = 'Anywhere'
+      AND salary_year_avg IS NOT NULL
+    ORDER BY salary_year_avg DESC
     LIMIT 10
 )
-SELECT
-    top_paying_jobs.*,
-    skills
+SELECT top_paying_jobs.*, skills
 FROM top_paying_jobs
-INNER JOIN skills_job_dim ON top_paying_jobs.job_id =skills_job_dim.job_id
-INNER JOIN skills_dim ON skills_job_dim.skill_id =skills_dim.skill_id
-ORDER BY
-    salary_year_avg DESC
+INNER JOIN skills_job_dim ON top_paying_jobs.job_id = skills_job_dim.job_id
+INNER JOIN skills_dim ON skills_job_dim.skill_id = skills_dim.skill_id
+ORDER BY salary_year_avg DESC
 ```
-| Rank | Skill      | Average Salary |
-|------|------------|----------------|
-| 1    | Go         | $115,320       |
-| 2    | Confluence | $114,210       |
-| 3    | Hadoop     | $113,193       |
-| 4    | Snowflake  | $112,948       |
-| 5    | Azure      | $111,225       |
-| 6    | BigQuery   | $109,654       |
-| 7    | AWS        | $108,317       |
-| 8    | Java       | $106,906       |
-| 9    | SSIS       | $106,683       |
-| 10   | Jira       | $104,918       |
 
-### 3. Top Demanded Skills
-**Objective:** Identify the top 5 in-demand skills for Data Analysts by analyzing all job postings.
+| Rank | Skill | Avg Salary |
+|------|-------|------------|
+| 1 | Go | $115,320 |
+| 2 | Confluence | $114,210 |
+| 3 | Hadoop | $113,193 |
+| 4 | Snowflake | $112,948 |
+| 5 | Azure | $111,225 |
 
-**Why:** This step retrieves the most sought-after skills in the job market, offering insights into which abilities are most valuable for job seekers.
+### 3. Most In-Demand Skills
+
+Aggregated skill demand across **all remote Data Analyst** postings:
+
 ```sql
-SELECT
-    skills,
-    COUNT(skills_job_dim.job_id) AS demand_count
+SELECT skills, COUNT(skills_job_dim.job_id) AS demand_count
 FROM job_postings_fact
-INNER JOIN skills_job_dim ON job_postings_fact.job_id =skills_job_dim.job_id
-INNER JOIN skills_dim ON skills_job_dim.skill_id =skills_dim.skill_id
-WHERE
-    job_title_short='Data Analyst' AND
-    job_location='Anywhere'
+INNER JOIN skills_job_dim ON job_postings_fact.job_id = skills_job_dim.job_id
+INNER JOIN skills_dim ON skills_job_dim.skill_id = skills_dim.skill_id
+WHERE job_title_short = 'Data Analyst' AND job_location = 'Anywhere'
 GROUP BY skills
 ORDER BY demand_count DESC
-LIMIT 10
+LIMIT 5
 ```
-| Rank | Skill      | Demand Count |
-|------|------------|--------------|
-| 1    | Python     | 236          |
-| 2    | Tableau    | 230          |
-| 3    | R          | 148          |
-| 4    | SAS        | 63           |
-| 5    | Looker     | 49           |
-| 6    | Snowflake  | 37           |
-| 7    | Oracle     | 37           |
-| 8    | SQL Server | 35           |
-| 9    | Azure      | 34           |
 
-### 4. Average Salary Associated with Each Skill
-**Objective:** Examine the average salary associated with each skill for Data Analyst positions, focusing on roles with specified salaries.
+| Rank | Skill | Demand Count |
+|------|-------|-------------|
+| 1 | Python | 236 |
+| 2 | Tableau | 230 |
+| 3 | R | 148 |
+| 4 | SAS | 63 |
+| 5 | Looker | 49 |
 
-**Why:** It reveals how different skills influence salary levels for Data Analysts, identifying the most financially rewarding skills to acquire or enhance.
+### 4. Average Salary by Skill
+
+Ranked skills by their associated **average salary**:
+
 ```sql
-SELECT
-    skills,
-    ROUND(AVG(salary_year_avg),0) AS avg_salary
+SELECT skills, ROUND(AVG(salary_year_avg), 0) AS avg_salary
 FROM job_postings_fact
-INNER JOIN skills_job_dim ON job_postings_fact.job_id =skills_job_dim.job_id
-INNER JOIN skills_dim ON skills_job_dim.skill_id =skills_dim.skill_id
-WHERE
-    job_title_short='Data Analyst' AND
-    salary_year_avg IS NOT NULL AND
-    job_work_from_home= True
-GROUP BY
-    skills
-ORDER BY
-    avg_salary DESC
+INNER JOIN skills_job_dim ON job_postings_fact.job_id = skills_job_dim.job_id
+INNER JOIN skills_dim ON skills_job_dim.skill_id = skills_dim.skill_id
+WHERE job_title_short = 'Data Analyst'
+  AND salary_year_avg IS NOT NULL
+  AND job_work_from_home = True
+GROUP BY skills
+ORDER BY avg_salary DESC
 LIMIT 25
 ```
+
 ### 5. Optimal Skills
-**Objective:** Identify skills that are in high demand and associated with high average salaries for Data Analyst roles, concentrating on remote positions.
 
-**Why:** This targets skills that offer both job security (high demand) and financial benefits (high salaries), providing strategic insights for career advancement in data analytics.
+Combined demand and salary to find the **best skills to learn** — high demand AND high pay:
+
 ```sql
-SELECT
-    skills_dim.skill_id,
-    skills_dim.skills,
-    COUNT(skills_job_dim.job_id) AS demand_count,
-    ROUND(AVG(job_postings_fact.salary_year_avg),0) AS avg_salary
+SELECT skills_dim.skills, COUNT(skills_job_dim.job_id) AS demand_count,
+       ROUND(AVG(salary_year_avg), 0) AS avg_salary
 FROM job_postings_fact
-INNER JOIN skills_job_dim ON job_postings_fact.job_id =skills_job_dim.job_id
-INNER JOIN skills_dim ON skills_job_dim.skill_id =skills_dim.skill_id
-WHERE
-    job_title_short='Data Analyst' AND
-    salary_year_avg IS NOT NULL AND
-    job_work_from_home= True
-GROUP BY
-    skills_dim.skill_id
-HAVING
-    COUNT(skills_job_dim.job_id)>10
-ORDER BY
-    avg_salary DESC,
-    demand_count DESC
+INNER JOIN skills_job_dim ON job_postings_fact.job_id = skills_job_dim.job_id
+INNER JOIN skills_dim ON skills_job_dim.skill_id = skills_dim.skill_id
+WHERE job_title_short = 'Data Analyst'
+  AND salary_year_avg IS NOT NULL
+  AND job_work_from_home = True
+GROUP BY skills_dim.skill_id
+HAVING COUNT(skills_job_dim.job_id) > 10
+ORDER BY avg_salary DESC, demand_count DESC
 LIMIT 25
 ```
-**Visualisation**:
-![Top paying skills]( Assets/top_10_in_demand_skills_with%20their%20corresponding_salaries.png "Top Demanded skills wih their corresponding avg_salaries")
 
-# 🌟 What I Learned
-Embarking on this project was a journey filled with insights, challenges, and triumphs. Here’s a snapshot of the valuable lessons I gathered along the way:
+<p align="center">
+  <img src="Assets/top_10_in_demand_skills_with%20their%20corresponding_salaries.png" width="700" alt="Top In-Demand Skills with Salaries"/>
+</p>
 
-- **SQL Mastery 📚:** Delving deep into SQL queries sharpened my ability to manipulate and analyze data, proving that SQL is an indispensable tool in the data analyst's arsenal.
+<p align="center">
+  <img src="Assets/Top_demand%20skills%20for%20data%20analysts.png" width="700" alt="Top Demand Skills for Data Analysts"/>
+</p>
 
-- **Tool Proficiency 🔧:** Working with PostgreSQL, Visual Studio Code, Git, and GitHub enhanced my understanding of these tools, from database management and code editing to version control and collaboration.
+<br>
 
-- **Data Analysis Insights 📈:** Analyzing the job market for data analysts revealed the importance of continuous learning and adaptation. Understanding the demand for specific skills and the salary implications has been invaluable for career planning.
+## Key Findings
 
-- **Visualization Skills 🎨:** Creating visualizations to represent our findings not only helped in making the data more comprehensible but also improved my ability to communicate complex insights effectively.
+1. **SQL, Python, and Tableau** are foundational — the three most demanded skills across all remote Data Analyst postings
+2. **Specialized cloud/big data skills** (Go, Hadoop, Snowflake, Azure) command the highest salaries ($111K–$115K)
+3. **High demand does not equal highest pay** — Python has 236 postings but niche tools like PySpark and Databricks pay more
+4. **The sweet spot** is skills with both strong demand (>10 postings) and high average salary — these are the optimal learning targets
 
-- **Strategic Thinking 🎯:** Identifying the optimal skills for career advancement taught me the importance of strategic planning in professional development. It’s not just about acquiring skills haphazardly but focusing on those that offer the highest return on investment.
+<br>
 
-- **Collaboration and Sharing 🌍:** Utilizing Git and GitHub for version control and sharing our findings underscored the power of collaboration. Sharing knowledge and insights can amplify the impact of our work, contributing to a community of learning and growth.
-# Conclusions:Navigating the Data Analyst Job Market 🚀
+## Technologies Used
 
-Our journey through the data analyst job market in 2023 has illuminated a highly competitive landscape, where distinct skills emerge as pivotal to success. The analysis of job postings provided a lens through which we could discern the skills in highest demand, offering a beacon for those poised to enter or advance within this dynamic field.
+| Tool | Purpose |
+|------|---------|
+| SQL | Data querying & analysis |
+| PostgreSQL | Database management |
+| Visual Studio Code | SQL editing & execution |
+| Git & GitHub | Version control |
 
-**Insights from Our Exploration 📊📈**
+<br>
 
-- **Essential Technical Skills**: Our findings reiterate the importance of foundational skills such as **SQL**, **Python**, and **Tableau**. SQL, with its unmatched relevance in data manipulation, Python's versatility and rich ecosystem, and Tableau's prowess in data visualization, stand out as the pillars upon which aspiring data analysts can build their careers.
+## How to Run
 
-- **Beyond the Basics**: Skills like **R**, **Snowflake**, **Pandas**, and **Excel** highlight the evolving nature of data analysis, where cloud data warehousing, programming for data manipulation, and advanced spreadsheet operations are increasingly valued.
+```bash
+# Clone the repository
+git clone https://github.com/ouyale/Exploratory-Data-Analysis-SQL.git
+cd Exploratory-Data-Analysis-SQL
 
-- **Specialized Skills for Premium Salaries**: The analysis revealed that expertise in big data and cloud technologies (e.g., **PySpark**, **Databricks**), along with niche technical skills (e.g., **Couchbase**, **Watson**), command premium salaries. This underscores a growing market trend that rewards specialization and advanced technological proficiency.
+# Set up the database
+# 1. Install PostgreSQL
+# 2. Run the setup scripts in sql_load/
+# 3. Execute queries in Project_sql/ (1 through 5)
+```
 
-- **The Strategic Edge**: The project underscores the strategic advantage of honing skills in big data, embracing specialized technologies, and cultivating a strong foundation in programming. These areas are not just avenues for personal growth but are pivotal in securing top-paying roles within the industry.
+<br>
 
-**Forward-Looking Strategies 🌟**
+## Author
 
-This project has made it clear that breaking into the data analyst job market takes more than just technical know-how. It’s about keeping up with industry trends, committing to continuous learning, and focusing on the skills that offer the greatest impact and reward.
+**Barbara Obayi** — Machine Learning Engineer
 
-For me, this wasn’t just an exercise in data analysis — it was a way to better understand how to grow in a field that’s constantly evolving.
+[![GitHub](https://img.shields.io/badge/GitHub-ouyale-181717?logo=github)](https://github.com/ouyale)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Barbara_Obayi-0A66C2?logo=linkedin)](https://www.linkedin.com/in/barbara-weroba-obayi31/)
+[![Portfolio](https://img.shields.io/badge/Portfolio-ouyale.github.io-4fc3f7)](https://ouyale.github.io)
 
-Ultimately, success in data analytics comes down to staying curious, being adaptable, and learning with intention. That’s the mindset I’m carrying forward.
+---
